@@ -13,11 +13,14 @@ def _lisp_name(desc):
 
 def main(out):
 
+    def add_package(s):
+        return s.replace("pbel-", sys.argv[1] + "-pbel-")
+
     def ln(s):
-        out.write(s + "\n")
+        out.write(add_package(s) + "\n")
 
     with open("pbel.el", "r") as f:
-        out.write(f.read())
+        out.write(add_package(f.read()))
     ln("")
     ln(";; Start generated code here:")
     ln("")
