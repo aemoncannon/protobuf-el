@@ -1,6 +1,5 @@
 
 (defun pbel-write-varint (value)
-  (message "writing varint %s" value)
   (let ((bits (logand value 127)))
     (setq value (lsh value -7))
     (while (not (zerop value))
@@ -59,7 +58,6 @@
 			(error "fuck! four byte varint!"))
 		      ))))))))
      (pbel-next)
-     (message "reading varint %s" result)
      result
      ))
 
@@ -88,7 +86,7 @@
       (setq msg (pbel-read-ensimemessage))
       (with-temp-buffer
 	(let ((i 0))
-	  (set-buffer-multibyte nil)
+	  (set-buffer-multibyte t)
 	  (pbel-write-ensimemessage msg)
 	  (message "%s" (buffer-string))
 	  )))))
