@@ -80,15 +80,8 @@
   (with-temp-buffer
     (insert-file-contents-literally "out")
     (set-buffer-multibyte nil)
-    (let ((i 1)
-	  (msg))
-      (message "%s" (buffer-string))
-      (setq msg (pbel-read-ensimemessage))
-      (with-temp-buffer
-	(let ((i 0))
-	  (set-buffer-multibyte t)
-	  (pbel-write-ensimemessage msg)
-	  (message "%s" (buffer-string))
-	  )))))
+    (let ((i 1))
+      (message "%S" (pbel-read-rpc-init-project)))))
+
 
 

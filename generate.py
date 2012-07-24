@@ -1,20 +1,24 @@
-
 import sys
-import test_pb2 as pb
+import re
 from google.protobuf.internal import wire_format
 from google.protobuf.descriptor_pb2 import FieldDescriptorProto as field_proto
 
-
+import imp
+pb = imp.load_source('pb', "%s.py" % sys.argv[1])
 
 _MSGS = pb.DESCRIPTOR.message_types_by_name.values()
 
-def _lisp_name(desc):
-    return desc.name.lower().replace("_", "-")
+def _lisp_name(name):
+    return camel_to_underscore(name.replace(".", "")).replace("_", "-")
+
+def camel_to_underscore(name):
+    s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
+    return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
 
 def main(out):
 
     def add_package(s):
-        return s.replace("pbel-", sys.argv[1] + "-pbel-")
+        return s.replace("pbel-", sys.argv[2] + "-pbel-")
 
     def ln(s):
         out.write(add_package(s) + "\n")
@@ -27,10 +31,10 @@ def main(out):
 
     def read_field_case(field, read_func):
         ln("        ((= %d num) (setq result (cons :%s (cons (pbel-read-%s) result))))" %
-           (field.number, _lisp_name(field), read_func))
+           (field.number, _lisp_name(field.name), read_func))
 
     for i, msg in enumerate(_MSGS):
-        ln("(defun pbel-read-%s ()" % _lisp_name(msg))
+        ln("(defun pbel-read-%s ()" % _lisp_name(msg.full_name))
         ln("  \"Read message of type %s from buffer.\"" % msg.name)
         ln("  (let ((j (+ i (pbel-read-varint)))")
         ln("        (result nil))")
@@ -46,7 +50,7 @@ def main(out):
             elif field.type == field_proto.TYPE_STRING:
                 read_field_case(field, "string")
             elif field.type == field_proto.TYPE_MESSAGE:
-                read_field_case(field, _lisp_name(field.message_type))
+                read_field_case(field, _lisp_name(field.message_type.full_name))
             else:
                 raise StandardError("Unknown field type: " + str(field.type))
         ln("        (t (pbel-skip (pbel-wire-type key)))")
@@ -66,14 +70,14 @@ def main(out):
             raise "Unknown field type!"
 
     def write_field_case(field, write_func):
-        ln("    (when (plist-get msg :%s)" % _lisp_name(field))
+        ln("    (when (plist-get msg :%s)" % _lisp_name(field.name))
         ln("      (pbel-write-varint %d)" %
            ((field.number << 3) | wire_type(field)))
         ln("      (pbel-write-%s (plist-get msg :%s)))" %
-           (write_func, _lisp_name(field)))
+           (write_func, _lisp_name(field.name)))
 
     for i, msg in enumerate(_MSGS):
-        ln("(defun pbel-write-%s (msg)" % _lisp_name(msg))
+        ln("(defun pbel-write-%s (msg)" % _lisp_name(msg.full_name))
         ln("  \"Write message of type %s to buffer.\"" % msg.name)
         ln("  (let ((start-pt (point))")
         ln("        (end-pt))")
@@ -85,7 +89,7 @@ def main(out):
             elif field.type == field_proto.TYPE_STRING:
                 write_field_case(field, "string")
             elif field.type == field_proto.TYPE_MESSAGE:
-                write_field_case(field, _lisp_name(field.message_type))
+                write_field_case(field, _lisp_name(field.message_type.full_name))
             else:
                 raise StandardError("Unknown field type: " + str(field.type))
         ln("    (setq end-pt (point))")

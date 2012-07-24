@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
 
-import test_pb2 as test
+import ensime_pb2 as ensime
 import google.protobuf.internal.encoder
 from google.protobuf import message
 
 
-msg = test.EnsimeMessage()
-msg.test1.a = 150
-msg.test1.b = u"great googly Ü moogly!"
-
-msg.test2.z = 777
-msg.test2.x = u"hello 中华人民共和"
-msg.test2.y = True
+msg = ensime.WireMessage()
+msg.call.call_id = 1
+msg.call.init_project.root_dir = u"/home/aemon/tmp"
+msg.call.init_project.active_subproject = u"/hullo/there"
+msg.call.init_project.config.name = "test_project"
 
 def write_varint(out, value):
     bits = value & 0x7f
