@@ -14,7 +14,9 @@ for msg in pb.DESCRIPTOR.message_types_by_name.values():
         _MSGS.append(msg)
 
 def _lisp_name(name):
-    return _camel_to_underscore(name.replace(".", "")).replace("_", "-")
+    return _camel_to_underscore(
+        name.replace(pb.DESCRIPTOR.package, "").replace(".", "")
+        ).replace("_", "-")
 
 def _camel_to_underscore(name):
     s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
@@ -23,12 +25,12 @@ def _camel_to_underscore(name):
 def main(out):
 
     def add_package(s):
-        return s.replace("pbel-", sys.argv[2] + "-pbel-")
+        return s.replace("pbel-", sys.argv[3] + "-pbel-")
 
     def ln(s):
         out.write(add_package(s) + "\n")
 
-    with open("pbel.el", "r") as f:
+    with open(sys.argv[2], "r") as f:
         out.write(add_package(f.read()))
     ln("")
     ln(";; Start generated code here:")
