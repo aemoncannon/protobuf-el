@@ -6,12 +6,17 @@ from google.protobuf.descriptor_pb2 import FieldDescriptorProto as field_proto
 import imp
 pb = imp.load_source('pb', "%s.py" % sys.argv[1])
 
-_MSGS = pb.DESCRIPTOR.message_types_by_name.values()
+_MSGS = []
+
+for msg in pb.DESCRIPTOR.message_types_by_name.values():
+    _MSGS.append(msg)
+    for msg in msg.nested_types:
+        _MSGS.append(msg)
 
 def _lisp_name(name):
-    return camel_to_underscore(name.replace(".", "")).replace("_", "-")
+    return _camel_to_underscore(name.replace(".", "")).replace("_", "-")
 
-def camel_to_underscore(name):
+def _camel_to_underscore(name):
     s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
     return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
 

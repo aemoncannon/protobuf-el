@@ -81,7 +81,7 @@
     (insert-file-contents-literally "out")
     (set-buffer-multibyte nil)
     (let ((i 1))
-      (message "%S" (pbel-read-rpc-init-project)))))
+      (message "%S" (pbel-read-wire-message)))))
 
 
 
