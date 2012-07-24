@@ -25,7 +25,7 @@ def _camel_to_underscore(name):
 def main(out):
 
     def add_package(s):
-        return s.replace("pbel-", sys.argv[3] + "-pbel-")
+        return s.replace("pbel", sys.argv[3] + "-pbel")
 
     def ln(s):
         out.write(add_package(s) + "\n")
@@ -104,7 +104,13 @@ def main(out):
         ln("    (pbel-write-varint i)")
         ln("    (forward-char (- end-pt start-pt))")
         ln("  ))")
-        ln("")
+
+    ln("")
+    ln("")
+    ln("(provide 'pbel)")
+
+
+
 
 
 #generate a parser that reads an ensimemessage from buffer:
